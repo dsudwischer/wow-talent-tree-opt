@@ -78,3 +78,9 @@ fabric.properties
 
 # Python Virtual Environments
 venv
+
+# Just all of the Jetbrains stuff
+.idea
+
+# MacOs stuff
+.DS_Store
