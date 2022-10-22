@@ -1,6 +1,6 @@
 from algorithms.generic_ga import Population, Individual
 from specs import Spec, get_talent_graph_by_spec
-from talent_graph import TalentBuild, TalentGraph, grow_random_tree
+from talent_graph import TalentBuild, TalentGraph, grow_random_tree, TalentSelectionStrategy
 from cachetools import cached, LFUCache
 
 
@@ -25,7 +25,7 @@ def mutate(individual: Individual[TalentBuild]) -> Individual[TalentBuild]:
 
 
 def make_individual(talent_graph: TalentGraph, max_points: int) -> Individual[TalentBuild]:
-    return Individual(grow_random_tree(talent_graph, max_points, [], []), dps_score)
+    return Individual(grow_random_tree(talent_graph, max_points, [], [], TalentSelectionStrategy.DEPTH_PROPORTIONAL), dps_score)
 
 
 def make_population(talent_graph: TalentGraph, max_points: int, size: int) -> Population[TalentBuild]:

@@ -1,6 +1,7 @@
 import dataclasses
 import random
 from collections import defaultdict
+from enum import Enum
 from typing import List, Dict, Container, Set
 
 from pydantic import BaseModel, conint
@@ -104,7 +105,8 @@ def _get_valid_next_node_choices(talent_graph: TalentGraph, choice_id_to_current
             valid_nodes.append(node)
         else:
             for child in talent_graph.get_child_nodes(choice.node_id):
-                points_spent_on_child = choice_id_to_current_choice[child.node_id].points if child.node_id in choice_id_to_current_choice else 0
+                points_spent_on_child = choice_id_to_current_choice[
+                    child.node_id].points if child.node_id in choice_id_to_current_choice else 0
                 if child.max_points > points_spent_on_child and spent_points >= child.minimum_points_spent:
                     valid_nodes.append(child)
     return unique_elements(valid_nodes)
@@ -122,8 +124,27 @@ def _get_valid_next_talent_choices(valid_nodes: List[TalentNode], ignore_talent_
     return valid_choices
 
 
+class TalentSelectionStrategy(str, Enum):
+    UNIFORM = "uniform"
+    DEPTH_PROPORTIONAL = "depth_proportional"
+
+
+def _choose_talent(talent_graph: TalentGraph, valid_choices: List[TalentChoice],
+                   strategy: TalentSelectionStrategy) -> TalentChoice:
+    if len(valid_choices) == 0:
+        raise ValueError("No valid choices to choose from")
+    if strategy == TalentSelectionStrategy.UNIFORM:
+        return random.choice(valid_choices)
+    elif strategy == TalentSelectionStrategy.DEPTH_PROPORTIONAL:
+        weights = [talent_graph.get_node_by_id(choice.node_id).row for choice in valid_choices]
+        return random.choices(valid_choices, weights=weights, k=1)[0]
+    else:
+        raise ValueError(f"Unknown talent selection strategy: {strategy}.")
+
+
 def grow_random_tree(talent_graph: TalentGraph, max_points: int, initial_choices: List[TalentChoice],
-                     ignore_talent_ids: Container[int]) -> TalentBuild:
+                     ignore_talent_ids: Container[int],
+                     talent_selection_strategy: TalentSelectionStrategy) -> TalentBuild:
     choices_by_id: Dict[int, TalentChoice] = {choice.node_id: choice for choice in initial_choices}
     spent_points = sum(choice.points for choice in choices_by_id.values())
     if spent_points > max_points:
@@ -133,7 +154,7 @@ def grow_random_tree(talent_graph: TalentGraph, max_points: int, initial_choices
         valid_choices = _get_valid_next_talent_choices(valid_nodes, ignore_talent_ids, choices_by_id)
         if not valid_choices:
             break
-        choice = random.choice(valid_choices)
+        choice = _choose_talent(talent_graph, valid_choices, talent_selection_strategy)
         choices_by_id[choice.node_id] = choice
         spent_points += 1
     return TalentBuild(choices=list(choices_by_id.values()))
