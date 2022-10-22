@@ -1,6 +1,5 @@
 import json
 from enum import Enum
-from typing import List
 
 from talent_graph import TalentGraph, TalentNode, NodeConnection
 
