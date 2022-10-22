@@ -23,7 +23,7 @@ class Individual(Generic[T]):
 
 def _maybe_mutate(
         individual: Individual[T],
-        mutation_function: Callable[[T], T],
+        mutation_function: Callable[[Individual[T]], Individual[T]],
         mutation_probability: float,
 ) -> Individual[T]:
     if random.random() < mutation_probability:
