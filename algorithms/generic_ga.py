@@ -40,7 +40,9 @@ class Population(Generic[T]):
                  elitism_rate: float = 0.5,
                  mutation_probability: float = 0.1,
                  ) -> None:
-        self._individuals: List[Individual[T]] = individuals or []
+        if len(individuals) < 2:
+            raise ValueError("Population must have at least 2 individuals")
+        self._individuals: List[Individual[T]] = individuals
         self._target_population_size: int = target_population_size or len(self._individuals)
         self._crossover_function: Callable[[Individual[T], Individual[T]], Individual[T]] = crossover_function
         self._keep_top_n = int(self._target_population_size * elitism_rate)
