@@ -34,7 +34,6 @@ def _maybe_mutate(
 class Population(Generic[T]):
     def __init__(self,
                  individuals: Optional[List[Individual[T]]],
-                 target_population_size: Optional[int],
                  crossover_function: Callable[[Individual[T], Individual[T]], Individual[T]],
                  mutation_function: Callable[[Individual[T]], Individual[T]],
                  elitism_rate: float = 0.5,
@@ -43,7 +42,7 @@ class Population(Generic[T]):
         if len(individuals) < 2:
             raise ValueError("Population must have at least 2 individuals")
         self._individuals: List[Individual[T]] = individuals
-        self._target_population_size: int = target_population_size or len(self._individuals)
+        self._target_population_size: int = len(self._individuals)
         self._crossover_function: Callable[[Individual[T], Individual[T]], Individual[T]] = crossover_function
         self._keep_top_n = int(self._target_population_size * elitism_rate)
         self._num_offsprings = self._target_population_size - self._keep_top_n
