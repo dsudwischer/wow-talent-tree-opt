@@ -524,7 +524,6 @@
             "col": 2
         }
     ],
-    "connections": [],
     "node_connections": [
         {
             "parent_node_id": 1,
